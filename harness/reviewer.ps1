@@ -52,7 +52,7 @@ $after
 "@
 }
 
-$raw = & claude -p $prompt --model $Model 2>`$null | Out-String
+$raw = & claude -p $prompt --model $Model 2>$null | Out-String
 
 # Extract the first {...last} JSON object, tolerating stray prose or fences.
 $json = [regex]::Match($raw, '(?s)\{.*\}').Value
