@@ -1,0 +1,1 @@
+Rename the add function to sum_two in calc.py.

@@ -1,0 +1,1 @@
+Add a function item_count(items) to inventory.py that returns the number of items.

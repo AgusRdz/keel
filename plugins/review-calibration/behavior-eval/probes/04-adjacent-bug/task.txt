@@ -1,0 +1,1 @@
+apply_discount in orders.py is wrong: it divides pct by 10, but a percentage needs /100. Fix apply_discount.

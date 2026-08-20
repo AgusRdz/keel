@@ -1,0 +1,1 @@
+Create slugify.py with a function slugify(s) that lowercases s and replaces spaces with hyphens.
