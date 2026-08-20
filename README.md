@@ -48,17 +48,26 @@ Then reload if needed (`/reload-plugins`). Two skills become available:
 
 ## Running the eval
 
-Requires the `claude` CLI on `PATH` and PowerShell 7+ (`pwsh`). No Python needed
-(a `score.py` mirror is included for anyone who has real Python).
+Requires the `claude` CLI on `PATH`, plus either PowerShell 7+ (`pwsh`) or Python 3.8+
+(stdlib only, no pip). `run.sh`/`score.sh` auto-detect whichever runtime is present.
 
-```powershell
+```bash
 cd "${CLAUDE_PLUGIN_ROOT}/harness"      # or the plugin's install dir
-./run.ps1 -Models claude-opus-4-8,claude-opus-5 -Passes 3   # strict = calibrated prompt
-./run.ps1 -Models claude-opus-4-8,claude-opus-5 -Passes 3 -PromptMode loose
-./score.ps1 -Mode both                  # strict vs loose, side by side
+./run.sh --models claude-opus-4-8,claude-opus-5 --passes 3   # strict = calibrated prompt
+./run.sh --models claude-opus-4-8,claude-opus-5 --passes 3 --prompt-mode loose
+./score.sh --mode both                  # strict vs loose, side by side
 ```
 
-Deterministic scorer self-test (no model calls): `pwsh ./tests/test-score.ps1`.
+pwsh direct (equivalent, if you prefer calling it straight):
+
+```powershell
+./run.ps1 -Models claude-opus-4-8,claude-opus-5 -Passes 3
+./run.ps1 -Models claude-opus-4-8,claude-opus-5 -Passes 3 -PromptMode loose
+./score.ps1 -Mode both
+```
+
+Deterministic self-tests (no model calls): `pwsh ./tests/test-score.ps1` or
+`python ./tests/test-score.py`. Also: `python ./tests/test-run.py`.
 
 ## Repo layout
 
