@@ -1,0 +1,6 @@
+{
+  "clean": false,
+  "bugs": [
+    { "file": "after.cs", "line": 3, "type": "resource-leak", "note": "using dropped; the StreamReader (and its underlying file handle + buffer) is never disposed, leaking a handle per call. Under load this exhausts handles and holds file locks longer than intended." }
+  ]
+}

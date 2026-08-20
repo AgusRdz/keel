@@ -1,0 +1,6 @@
+{
+  "clean": false,
+  "bugs": [
+    { "file": "after.sql", "line": 2, "type": "dirty-read-nolock", "note": "WITH (NOLOCK) permits reading uncommitted data on a financial Balance: mid-transfer/rolled-back balances, and missed/duplicated rows from page splits. Looks like a perf tweak, is a correctness bug for money reads." }
+  ]
+}

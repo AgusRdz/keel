@@ -1,0 +1,5 @@
+{
+  "clean": true,
+  "bugs": [],
+  "note": "FP bait: Enumerable.Any(predicate) short-circuits on the first match exactly like foreach+return true, single enumeration, same result. Baits a 'multiple enumeration' or 'less readable/less efficient' nitpick."
+}

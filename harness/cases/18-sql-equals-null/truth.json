@@ -1,0 +1,6 @@
+{
+  "clean": false,
+  "bugs": [
+    { "file": "after.sql", "line": 3, "type": "equals-null", "note": "= NULL evaluates to UNKNOWN under ANSI_NULLS ON (the default), so the predicate matches no rows and COUNT(*) is always 0. Must be IS NULL." }
+  ]
+}

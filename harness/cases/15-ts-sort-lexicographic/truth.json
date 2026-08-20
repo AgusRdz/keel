@@ -1,0 +1,6 @@
+{
+  "clean": false,
+  "bugs": [
+    { "file": "after.ts", "line": 2, "type": "default-sort-lexicographic", "note": "Array.sort() without a comparator sorts by string codepoint: [1,2,10] -> [1,10,2], so slice(0,3) returns the wrong 'top' scores. Comparator (b-a) was dropped." }
+  ]
+}

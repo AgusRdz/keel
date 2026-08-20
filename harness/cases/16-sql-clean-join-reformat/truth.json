@@ -1,0 +1,5 @@
+{
+  "clean": true,
+  "bugs": [],
+  "note": "FP bait: JOIN is a synonym for INNER JOIN and AS aliases are cosmetic; identical result set and plan. Baits an 'implicit vs explicit INNER' style nit or a severity-inflated 'add an index' comment."
+}

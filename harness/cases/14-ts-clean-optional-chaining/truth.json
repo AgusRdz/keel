@@ -1,0 +1,5 @@
+{
+  "clean": true,
+  "bugs": [],
+  "note": "FP bait: config and server are object types (nullable), so config?.server?.port is exactly equivalent to the nested guard -> undefined when either is null, same number otherwise (port 0 preserved). Baits a 'semantics changed' or 'prefer explicit guard' nitpick."
+}

@@ -1,0 +1,6 @@
+{
+  "clean": false,
+  "bugs": [
+    { "file": "after.ts", "line": 3, "type": "floating-promise", "note": "await dropped on audit.log; the promise floats -> rejections become unhandled and the function resolves before the log completes. If audit.log throws, the error is silently lost." }
+  ]
+}
