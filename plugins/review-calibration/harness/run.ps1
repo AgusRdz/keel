@@ -6,7 +6,8 @@ param(
     [string[]]$Models = @('claude-opus-4-8', 'claude-opus-5'),
     [int]$Passes = 3,
     [string[]]$CasePattern = @('*'),
-    [ValidateSet('strict', 'loose')][string]$PromptMode = 'strict'
+    [ValidateSet('strict', 'loose')][string]$PromptMode = 'strict',
+    [string]$Contract = (Join-Path $PSScriptRoot '..\contract\calibration-rules.md')
 )
 $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
@@ -25,7 +26,7 @@ foreach ($model in $Models) {
             $out = Join-Path $outDir "$($case.Name).json"
             Write-Host ("[{0}/{1}] {2} {3} pass{4} {5}" -f $i, $total, $PromptMode, $model, $pass, $case.Name)
             try {
-                & $reviewer -CaseDir $case.FullName -Model $model -OutFile $out -PromptMode $PromptMode
+                & $reviewer -CaseDir $case.FullName -Model $model -OutFile $out -PromptMode $PromptMode -Contract $Contract
             } catch {
                 Write-Warning "  failed: $($_.Exception.Message)"
             }

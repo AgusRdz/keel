@@ -5,7 +5,8 @@ param(
     [Parameter(Mandatory)][string]$CaseDir,
     [Parameter(Mandatory)][string]$Model,
     [Parameter(Mandatory)][string]$OutFile,
-    [ValidateSet('strict', 'loose')][string]$PromptMode = 'strict'
+    [ValidateSet('strict', 'loose')][string]$PromptMode = 'strict',
+    [string]$Contract = (Join-Path $PSScriptRoot '..\contract\calibration-rules.md')
 )
 $ErrorActionPreference = 'Stop'
 
@@ -16,10 +17,11 @@ if (-not $afterFile) { throw "No after.* file in $CaseDir" }
 $before = if ($beforeFile) { Get-Content -Raw $beforeFile.FullName } else { '' }
 $after  = Get-Content -Raw $afterFile.FullName
 
-# Two prompt modes. STRICT mirrors the Calibration contract (repro required,
-# correctness/security/data-loss floor) = the reviewer as you'd deploy it. LOOSE is a
-# generic "comment on anything" prompt with no floor = the reviewer running on model
-# defaults, to isolate how much each model nitpicks WITHOUT calibration.
+# Two prompt modes. STRICT injects the calibration contract (the review-relevant rules:
+# repro required, correctness/security/data-loss floor) from $Contract = the reviewer as you'd
+# deploy it. Editing the contract file changes what STRICT measures (and its content hash, which
+# the model ledger keys on). LOOSE is a generic "comment on anything" prompt with no contract =
+# the reviewer on model defaults, to isolate how much each model nitpicks WITHOUT calibration.
 if ($PromptMode -eq 'loose') {
     $prompt = @"
 You are a code reviewer. Review the CHANGE from BEFORE to AFTER and report anything
@@ -36,11 +38,13 @@ $after
 "@
 }
 else {
+    if (-not (Test-Path $Contract)) { throw "Contract file not found: $Contract" }
+    $contractText = (Get-Content -Raw $Contract).Trim()
     $prompt = @"
-You are a senior code reviewer. Review the CHANGE from BEFORE to AFTER for defects.
-Report a finding ONLY when you can state a concrete failure (specific input -> wrong result).
-Severity floor: correctness, security, data-loss. Do NOT report style, naming, formatting,
-or preference. If the change is behavior-preserving and correct, return an empty array.
+You are a senior code reviewer. Review the CHANGE from BEFORE to AFTER for defects, applying
+this review contract:
+
+$contractText
 
 Return ONLY minified JSON. No prose, no markdown, no code fences. Exact shape:
 {"findings":[{"line":<int line number in AFTER>,"type":"<short-kebab>","severity":"correctness|security|data-loss","repro":"<input -> wrong output>"}]}

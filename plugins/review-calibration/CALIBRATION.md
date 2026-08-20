@@ -62,3 +62,20 @@ nitpicking / non-convergent review; stop-when-done -> scope creep.
 3. De-dup against what's already on disk; prune lines the model now handles by default.
 4. Keep the block ~6-8 lines. Fewer, sharper transfers better than exhaustive — a long
    list dilutes, and dilutes differently per model version.
+
+## The contract file (single source of truth for the eval)
+
+`contract/calibration-rules.md` holds the **review-relevant** subset of the calibration rules
+— the ones that define what counts as a finding (repro required, severity floor, don't-flag-style).
+The eval's STRICT prompt is *built by injecting this file*, so the eval measures the exact
+contract you'd deploy, not a hardcoded copy that can drift.
+
+- **Why a subset:** rules like scope-lock or stop-when-done govern an agent *doing* work; the
+  eval only measures *reviewing*, so only the review-relevant rules live here. Your global
+  `CLAUDE.md` block is the superset.
+- **Testing a candidate rule** = edit this file, re-run `run.ps1`/`run.py` (default `-Contract`
+  points here). Compare STRICT clean-FP before/after. No code change needed.
+- **The model ledger keys on this file's content hash** — change it and every model gets exactly
+  one re-check (globally, not per repo); leave it and no repo switch triggers a check.
+- Point the eval at your live global block with `-Contract ~/.claude/CLAUDE.md` to test what you
+  actually run; the default stays the shipped contract for reproducible baselines.
