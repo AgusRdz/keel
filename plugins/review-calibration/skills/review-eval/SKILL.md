@@ -18,11 +18,14 @@ worse, team reverts.** This skill says don't chase the model — calibrate the
 reviewer, then measure. Empirically, calibration outweighs model choice by roughly
 an order of magnitude (see `docs/FINDINGS.md`).
 
-Core claims, all measured (20-case corpus, `docs/FINDINGS.md`):
-- Calibration moves false positives ~10-25x more than the model version does.
-- "Nitpicky new model" is real (5 ~2.5x noisier than 4.8 uncalibrated) but calibration
-  removes ~96% of it — calibrated, the models are effectively tied.
+Core claims, all measured (32-case corpus, TS/SQL/C#/Python/Go, `docs/FINDINGS.md`):
+- Calibration moves false positives far more than the model version does — removing the
+  prompt swings FP by several points/run; calibrated, the model gap collapses to ~0.
+- "Nitpicky new model" is real (5 stays noisier than 4.8 uncalibrated, every corpus) but
+  calibration removes essentially all of it — calibrated, both models sit at 0.0 FP.
 - Models rarely lose recall across versions — they get *noisier*, which reads as dumb.
+- Exact multipliers are corpus-sensitive; the durable result is the sign and ordering
+  (loose ≫ strict, 5 > 4.8), not a point number.
 
 ## When to use
 
@@ -61,9 +64,9 @@ how much calibration it needs. Big loose FP + near-zero strict FP = "fine once c
 
 - `CALIBRATION.md` — the block + how to write executable, durable lines.
 - `RUNBOOK.md` — the per-release verify/tune loop and the ship-vs-tune decision rule.
-- `harness/` — the eval: `reviewer.ps1`, `run.ps1`, `score.ps1` (+ `score.py`), `cases/`, `lib/`.
-- `tests/test-score.ps1` — deterministic scorer self-test, no model calls.
-- `docs/FINDINGS.md` — the study behind the ~order-of-magnitude result.
+- `harness/` — the eval: `reviewer.ps1`, dual dispatchers `run.ps1`/`run.py` and
+  `score.ps1`/`score.py` (+ `run.sh`/`score.sh` auto-detect), `cases/` (by language), `lib/`.
+- `docs/FINDINGS.md` — the study behind the calibration-outweighs-model result.
 
 ## Guardrails
 

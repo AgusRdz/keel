@@ -80,22 +80,23 @@ cd harness
 
 ---
 
-## Baselines (2026-08-19, 20-case corpus: 12 buggy, 8 clean; TS/SQL/C#)
+## Baselines (2026-08-20, 32-case corpus: 18 buggy, 14 clean; TS/SQL/C#/Python/Go)
 
 | Mode | Model | recall | clean-FP/run |
 |---|---|---|---|
 | STRICT | claude-opus-4-8 | 100% | 0.0 |
-| STRICT | claude-opus-5 | 100% | 0.7* |
-| LOOSE | claude-opus-4-8 | 100% | 7.7 |
-| LOOSE | claude-opus-5 | 100% | 19.3 |
+| STRICT | claude-opus-5 | 100% | 0.0 |
+| LOOSE | claude-opus-4-8 | 100% | 3.3 |
+| LOOSE | claude-opus-5 | 100% | 4.7 |
 
-\* 5's entire strict FP is one ambiguous case (`12-clean-style-not-bug`), where flagging
-input-widening is a defensible judgment call, not sloppiness. Calibrated, the models are
-effectively tied.
+Read: calibrated, both models sit at a flat 0.0 FP — 5's one debatable strict-FP from the
+20-case run (`12-clean-style-not-bug`) is gone at this scale. Uncalibrated, 5 stays the
+noisier model (4.7 vs 3.3), same ordering as every prior run. Recall stays 100% everywhere.
 
-Read: calibrated, both models are near-perfect (0.0 / 0.7). Uncalibrated, 5 is ~2.5x
-noisier than 4.8 (19.3 vs 7.7). Calibration removes ~100% of 4.8's nitpicking and ~96% of
-5's — and specifically neutralizes 5's higher raw tendency. Recall stays 100% everywhere.
+Loose magnitude fell vs the 20-case run (was 7.7 / 19.3): the added clean cases are easy
+equivalences (f-string, template literal, destructure-rename) that even LOOSE rarely flags,
+gentling the denominator. Durable result = sign and ordering (loose ≫ strict, 5 > 4.8), not
+the point number; treat multipliers as corpus-sensitive.
 
-Re-baseline when you materially grow the corpus. n=20 separates the models more cleanly
-than the earlier n=12 run; still treat exact multipliers as "~an order of magnitude".
+Re-baseline when you materially grow the corpus. Prior baselines: n=20 (2026-08-19, TS/SQL/C#),
+n=12 (2026-08-19, C# only) — see `docs/FINDINGS.md` for the full history.

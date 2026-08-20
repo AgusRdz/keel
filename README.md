@@ -4,19 +4,20 @@ A Claude Code plugin for one recurring problem: **a new model ships, your review
 agent) suddenly feel nitpicky / dumb / degraded, so the team reverts.** This plugin says
 don't chase the model — *calibrate* it, then *measure*.
 
-Measured result across 240 reviews: **calibration outweighs model choice by roughly an
-order of magnitude.** Calibrated, Opus 4.8 and Opus 5 are effectively tied; uncalibrated,
-5 is ~2.5× noisier. Full study in [`docs/FINDINGS.md`](plugins/review-calibration/docs/FINDINGS.md).
+Measured result across 384 reviews: **calibration outweighs model choice by a wide margin.**
+Calibrated, Opus 4.8 and Opus 5 are tied at zero false positives; uncalibrated, 5 is
+consistently the noisier model (1.4–2.5× depending on corpus). Full study in
+[`docs/FINDINGS.md`](plugins/review-calibration/docs/FINDINGS.md).
 
 ```
-STRICT (calibrated)     recall  clean-FP/run     20-case corpus, TS/SQL/C#
+STRICT (calibrated)     recall  clean-FP/run     32-case corpus, TS/SQL/C#/Python/Go
   claude-opus-4-8         100%          0.0
-  claude-opus-5           100%          0.7*
+  claude-opus-5           100%          0.0
 LOOSE (no calibration)  recall  clean-FP/run
-  claude-opus-4-8         100%          7.7
-  claude-opus-5           100%         19.3
+  claude-opus-4-8         100%          3.3
+  claude-opus-5           100%          4.7
 ```
-<sub>* 5's only strict FP is one genuinely ambiguous case; calibrated, the models are tied. Recall never drops — models get *noisier*, not weaker, which reads as "dumb".</sub>
+<sub>Calibrated, both models sit at 0.0 FP across all 32 cases. Recall never drops — models get *noisier*, not weaker, which reads as "dumb". Loose magnitude is corpus-sensitive; the durable result is the sign and ordering (loose ≫ strict, 5 > 4.8), not the exact number.</sub>
 
 ## Install
 
@@ -66,9 +67,6 @@ pwsh direct (equivalent, if you prefer calling it straight):
 ./score.ps1 -Mode both
 ```
 
-Deterministic self-tests (no model calls): `pwsh ./tests/test-score.ps1` or
-`python ./tests/test-score.py`. Also: `python ./tests/test-run.py`.
-
 ## Repo layout
 
 ```
@@ -78,13 +76,13 @@ plugins/review-calibration/
   skills/calibrate/SKILL.md             # /review-calibration:calibrate
   skills/review-eval/SKILL.md           # /review-calibration:review-eval
   CALIBRATION.md  RUNBOOK.md            # method + per-release loop
-  harness/  tests/  docs/               # eval, self-test, findings
+  harness/  docs/                       # eval runtime + cases, findings
 ```
 
 ## Honest limits
 
-- The eval measures the reviewer **on its corpus** (20 cases). Grow `harness/cases/` toward
-  the bugs *you* care about — the corpus IS the eval.
+- The eval measures the reviewer **on its corpus** (32 cases, 5 languages). Grow
+  `harness/cases/` toward the bugs *you* care about — the corpus IS the eval.
 - Line-window matching (±3) is coarse — catches a 40% FP gap, not a 2%.
 - `LOOSE` is a deliberately extreme null-calibration prompt; real use sits between the two
   columns. Quote "~an order of magnitude", not a point number.
