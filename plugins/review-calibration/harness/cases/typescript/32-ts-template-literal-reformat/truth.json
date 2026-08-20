@@ -1,0 +1,1 @@
+{ "clean": true, "bugs": [], "note": "FP bait: string concatenation rewritten as a template literal; identical string produced for every (host, port, path) input. Baits a 'reformatting only / no behavior change' over-flag or a spurious 'type coercion' nitpick on the number-to-string interpolation, which is exactly what the '+' form already did." }

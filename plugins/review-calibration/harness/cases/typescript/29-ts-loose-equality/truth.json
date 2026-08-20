@@ -1,0 +1,6 @@
+{
+  "clean": false,
+  "bugs": [
+    { "file": "after.ts", "line": 2, "type": "loose-equality-coercion", "note": "`===` narrowed to `==`: for a numeric id of 0, `0 == ''` coerces '' to Number('') === 0, so the comparison is true, whereas `0 === ''` is false. A valid numeric id of 0 is now misreported as empty -- isEmptyId(0) flips from false to true." }
+  ]
+}

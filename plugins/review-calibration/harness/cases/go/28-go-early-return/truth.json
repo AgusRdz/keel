@@ -1,0 +1,1 @@
+{ "clean": true, "bugs": [], "note": "FP bait: if/else-assign-then-return rewritten as early returns; same result for every input, no behavior change." }

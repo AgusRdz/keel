@@ -1,0 +1,1 @@
+{ "clean": true, "bugs": [], "note": "FP bait: .format() call rewritten as an f-string; identical output for every (name, count) input." }

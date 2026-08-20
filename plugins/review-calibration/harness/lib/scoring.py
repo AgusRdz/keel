@@ -1,26 +1,41 @@
 """Scoring library for review-eval. Pure functions, no side effects on import.
-Stdlib-only Python port of lib/scoring.ps1. Consumed by ../score.py and
-../../tests/test-score.py.
+Stdlib-only Python port of lib/scoring.ps1. Consumed by ../run.py, ../score.py and
+../../tests/test-score.py / test-run.py.
 """
 import json
 from pathlib import Path
 
 
+def case_identity(cases_dir, case_dir):
+    """Case identity = case_dir's path relative to cases_dir, forward-slash separated
+    (e.g. 'csharp/01-null-deref', 'python/21-mutable-default-arg'). Single source of
+    truth for identity everywhere: results filenames, truth keys, --case-pattern."""
+    rel = Path(case_dir).resolve().relative_to(Path(cases_dir).resolve())
+    return rel.as_posix()
+
+
+def discover_case_dirs(cases_dir):
+    """Recursive discovery: a case is ANY directory at any depth under cases_dir that
+    contains a truth.json. No hardcoded language list. Returns a sorted (by identity)
+    list of Path objects."""
+    cases_dir = Path(cases_dir)
+    if not cases_dir.is_dir():
+        return []
+    dirs = [p.parent for p in cases_dir.rglob("truth.json") if p.is_file()]
+    dirs.sort(key=lambda d: case_identity(cases_dir, d))
+    return dirs
+
+
 def load_truth(cases_dir):
-    """Load truth.json for every subdirectory of cases_dir that has one, sorted by
-    case name. Returns an ordinary dict (insertion order == sorted order, matching
-    the [ordered] hashtable Get-Truth builds)."""
+    """Load truth.json for every case dir under cases_dir (recursive), keyed by case
+    identity, sorted. Returns an ordinary dict (insertion order == sorted order,
+    matching the [ordered] hashtable Get-Truth builds)."""
     cases_dir = Path(cases_dir)
     truth = {}
-    if not cases_dir.is_dir():
-        return truth
-    for d in sorted(cases_dir.iterdir(), key=lambda p: p.name):
-        if not d.is_dir():
-            continue
-        tp = d / "truth.json"
-        if tp.is_file():
-            with open(tp, "r", encoding="utf-8") as f:
-                truth[d.name] = json.load(f)
+    for d in discover_case_dirs(cases_dir):
+        identity = case_identity(cases_dir, d)
+        with open(d / "truth.json", "r", encoding="utf-8") as f:
+            truth[identity] = json.load(f)
     return truth
 
 

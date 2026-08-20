@@ -1,0 +1,1 @@
+{ "clean": true, "bugs": [], "note": "FP bait: accumulator loop rewritten as an equivalent list comprehension; identical input -> output mapping for every list, no behavior change." }

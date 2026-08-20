@@ -1,0 +1,6 @@
+{
+  "clean": false,
+  "bugs": [
+    { "file": "after.go", "line": 7, "type": "loop-var-capture", "note": "Assumes go.mod pins go 1.20 (declared in the file's leading comment), where a for-range loop reuses one variable across iterations. The `id := id` per-iteration shadow copy was removed, so every goroutine closure captures the same shared `id` variable instead of its own; by the time the goroutines run, id already holds the range's final value for all (or most) of them, instead of each goroutine getting the id it was launched with." }
+  ]
+}

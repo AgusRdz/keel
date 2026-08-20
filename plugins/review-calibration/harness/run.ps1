@@ -12,9 +12,22 @@ param(
 $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
 $reviewer = Join-Path $root 'reviewer.ps1'
-$cases = Get-ChildItem -Path (Join-Path $root 'cases') -Directory |
-    Where-Object { $n = $_.Name; @($CasePattern | Where-Object { $n -like $_ }).Count -gt 0 } |
-    Sort-Object Name
+. (Join-Path $root 'lib/scoring.ps1')
+
+$casesDir = Join-Path $root 'cases'
+# Case identity = path relative to cases/, forward slashes (e.g. 'csharp/01-null-deref').
+# --case-pattern matches against either the full identity or just the leaf dir name,
+# so both 'csharp/01-*' and '01-*' work; matching is case-insensitive (-like semantics).
+$cases = Get-CaseDirs -CasesDir $casesDir | ForEach-Object {
+    [pscustomobject]@{
+        FullName = $_.FullName
+        Identity = Get-CaseIdentity -CasesDir $casesDir -CaseDir $_.FullName
+        Leaf     = $_.Name
+    }
+} | Where-Object {
+    $id = $_.Identity; $leaf = $_.Leaf
+    @($CasePattern | Where-Object { $id -like $_ -or $leaf -like $_ }).Count -gt 0
+} | Sort-Object Identity
 
 $total = $Models.Count * $Passes * $cases.Count
 $i = 0
@@ -23,8 +36,8 @@ foreach ($model in $Models) {
         foreach ($case in $cases) {
             $i++
             $outDir = Join-Path $root "results/$PromptMode/$model/pass$pass"
-            $out = Join-Path $outDir "$($case.Name).json"
-            Write-Host ("[{0}/{1}] {2} {3} pass{4} {5}" -f $i, $total, $PromptMode, $model, $pass, $case.Name)
+            $out = Join-Path $outDir "$($case.Identity).json"
+            Write-Host ("[{0}/{1}] {2} {3} pass{4} {5}" -f $i, $total, $PromptMode, $model, $pass, $case.Identity)
             try {
                 & $reviewer -CaseDir $case.FullName -Model $model -OutFile $out -PromptMode $PromptMode -Contract $Contract
             } catch {

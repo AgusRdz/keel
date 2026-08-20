@@ -1,0 +1,6 @@
+{
+  "clean": false,
+  "bugs": [
+    { "file": "after.py", "line": 4, "type": "over-broad-except", "note": "The catch was widened from `KeyError` to bare `Exception`. A malformed config value (e.g. config['timeout'] = 'abc') now raises ValueError from int(), which this except also swallows, silently returning the default 30 instead of surfacing the bad config -- a real misconfiguration is masked as if the key were simply absent." }
+  ]
+}

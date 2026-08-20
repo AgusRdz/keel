@@ -1,0 +1,1 @@
+{ "clean": true, "bugs": [], "note": "FP bait: two individual property reads rewritten as a single object-destructuring binding; firstName/lastName bind to the same values for every input, output identical. Baits a 'prefer explicit reads' or 'semantics changed' nitpick." }

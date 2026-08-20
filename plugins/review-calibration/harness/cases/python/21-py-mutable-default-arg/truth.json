@@ -1,0 +1,6 @@
+{
+  "clean": false,
+  "bugs": [
+    { "file": "after.py", "line": 1, "type": "mutable-default-arg", "note": "The `items=None` + 'if None: items = []' guard was removed in favor of `items=[]` directly. Default arguments are evaluated once at function-definition time, so every call that omits `items` shares and mutates the SAME list: add_item(1) then add_item(2) returns [1, 2] from the second call instead of two independent single-item lists." }
+  ]
+}

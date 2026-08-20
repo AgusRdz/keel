@@ -1,0 +1,6 @@
+{
+  "clean": false,
+  "bugs": [
+    { "file": "after.ts", "line": 2, "type": "floating-promise", "note": "The outer `await` on Promise.all was dropped: saveAll() now resolves as soon as it's called, before any repo.save() has completed, so callers that await saveAll() proceed while saves are still in flight. If any save rejects, the rejection is unhandled instead of propagating to the caller." }
+  ]
+}

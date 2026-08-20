@@ -1,0 +1,6 @@
+{
+  "clean": false,
+  "bugs": [
+    { "file": "after.go", "line": 6, "type": "ignored-error", "note": "os.ReadFile's error is discarded (`_`). When path doesn't exist or isn't readable, data is nil and the function proceeds straight to parse(nil) and returns whatever that does (likely a zero-value *Config with a nil error, or a panic) instead of propagating the real read failure to the caller as the before version did." }
+  ]
+}

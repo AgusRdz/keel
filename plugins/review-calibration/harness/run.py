@@ -33,6 +33,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 DEFAULT_CONTRACT = ROOT / ".." / "contract" / "calibration-rules.md"
 
+sys.path.insert(0, str(ROOT / "lib"))
+import scoring  # noqa: E402  (import after sys.path tweak, mirrors score.py)
+
 DEFAULT_MODELS = ["claude-opus-4-8", "claude-opus-5"]
 
 # --- Prompt templates -------------------------------------------------------
@@ -100,27 +103,28 @@ def normalize(parsed_or_none, raw):
 
 
 def discover_cases(cases_dir, patterns):
-    """List subdirectories of cases_dir whose name matches any of patterns (glob,
-    case-insensitive -- matches PowerShell's -like), sorted by name. Flat discovery
-    only (no recursion) -- matches run.ps1's current behavior."""
+    """Recursively discover case directories under cases_dir: any directory at any
+    depth containing a truth.json (via scoring.discover_case_dirs -- no hardcoded
+    language list), filtered to those whose IDENTITY (path relative to cases_dir,
+    forward slashes -- e.g. 'csharp/01-null-deref') or LEAF directory name matches
+    any of patterns (glob, case-insensitive -- matches PowerShell's -like). Sorted
+    by identity."""
     cases_dir = Path(cases_dir)
-    if not cases_dir.is_dir():
-        return []
-    pats = list(patterns) if patterns else ["*"]
-    pats_l = [p.lower() for p in pats]
+    pats_l = [p.lower() for p in (patterns if patterns else ["*"])]
     result = []
-    for entry in sorted(cases_dir.iterdir(), key=lambda p: p.name):
-        if not entry.is_dir():
-            continue
-        name_l = entry.name.lower()
-        if any(fnmatch.fnmatch(name_l, p) for p in pats_l):
+    for entry in scoring.discover_case_dirs(cases_dir):
+        identity_l = scoring.case_identity(cases_dir, entry).lower()
+        leaf_l = entry.name.lower()
+        if any(fnmatch.fnmatch(identity_l, p) or fnmatch.fnmatch(leaf_l, p) for p in pats_l):
             result.append(entry)
     return result
 
 
-def result_path(root, mode, model, pass_n, case_name):
-    """results/<mode>/<model>/pass<N>/<case>.json under root (the harness dir)."""
-    return Path(root) / "results" / mode / model / "pass{}".format(pass_n) / "{}.json".format(case_name)
+def result_path(root, mode, model, pass_n, identity):
+    """results/<mode>/<model>/pass<N>/<identity>.json under root (the harness dir).
+    identity may contain '/' (e.g. 'csharp/01-null-deref'), which pathlib resolves
+    as nested directories on both POSIX and Windows."""
+    return Path(root) / "results" / mode / model / "pass{}".format(pass_n) / "{}.json".format(identity)
 
 
 def _first_match(case_dir, glob_pattern):
@@ -146,8 +150,9 @@ def call_claude(prompt, model):
     return proc.stdout or ""
 
 
-def run_one_case(case_dir, model, pass_n, mode, contract_path, root):
+def run_one_case(case_dir, model, pass_n, mode, contract_path, root, cases_dir):
     """Run one (case, model, pass) review and write the normalized result JSON."""
+    identity = scoring.case_identity(cases_dir, case_dir)
     before_file = _first_match(case_dir, "before.*")
     after_file = _first_match(case_dir, "after.*")
     if after_file is None:
@@ -175,7 +180,7 @@ def run_one_case(case_dir, model, pass_n, mode, contract_path, root):
             parsed = None
     result = normalize(parsed, raw)
 
-    out_path = result_path(root, mode, model, pass_n, Path(case_dir).name)
+    out_path = result_path(root, mode, model, pass_n, identity)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")
 
@@ -233,9 +238,10 @@ def main(argv=None):
         for pass_n in range(1, args.passes + 1):
             for case in cases:
                 i += 1
-                print("[{}/{}] {} {} pass{} {}".format(i, total, args.prompt_mode, model, pass_n, case.name))
+                identity = scoring.case_identity(cases_dir, case)
+                print("[{}/{}] {} {} pass{} {}".format(i, total, args.prompt_mode, model, pass_n, identity))
                 try:
-                    run_one_case(case, model, pass_n, args.prompt_mode, args.contract, ROOT)
+                    run_one_case(case, model, pass_n, args.prompt_mode, args.contract, ROOT, cases_dir)
                 except Exception as e:
                     print("  failed: {}".format(e))
 

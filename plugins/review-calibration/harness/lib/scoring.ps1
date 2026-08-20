@@ -1,12 +1,38 @@
 # Scoring library for review-eval. Pure functions, no side effects on dot-source.
-# Consumed by ../score.ps1 and ../../tests/test-score.ps1.
+# Consumed by ../run.ps1, ../score.ps1 and ../../tests/test-score.ps1.
+
+# Case identity = the case directory's path relative to cases/, with forward slashes
+# (e.g. 'csharp/01-null-deref', 'python/21-mutable-default-arg'). This is the single
+# source of truth for identity everywhere: results filenames, truth keys, --case-pattern.
+function Get-CaseIdentity {
+    param(
+        [Parameter(Mandatory)][string]$CasesDir,
+        [Parameter(Mandatory)][string]$CaseDir
+    )
+    $base = (Resolve-Path -LiteralPath $CasesDir).ProviderPath.TrimEnd('\', '/')
+    $full = (Resolve-Path -LiteralPath $CaseDir).ProviderPath
+    $rel = $full.Substring($base.Length).TrimStart('\', '/')
+    return ($rel -replace '\\', '/')
+}
+
+# Recursive discovery: a case is ANY directory at any depth under CasesDir that
+# contains a truth.json. No hardcoded language list. Returns DirectoryInfo objects,
+# sorted by identity.
+function Get-CaseDirs {
+    param([Parameter(Mandatory)][string]$CasesDir)
+    if (-not (Test-Path $CasesDir)) { return @() }
+    $truthFiles = Get-ChildItem -Path $CasesDir -Recurse -Filter 'truth.json' -File -ErrorAction SilentlyContinue
+    $dirs = @($truthFiles | ForEach-Object { $_.Directory })
+    return @($dirs | Sort-Object { Get-CaseIdentity -CasesDir $CasesDir -CaseDir $_.FullName })
+}
 
 function Get-Truth {
     param([Parameter(Mandatory)][string]$CasesDir)
     $truth = [ordered]@{}
-    foreach ($d in Get-ChildItem $CasesDir -Directory | Sort-Object Name) {
+    foreach ($d in Get-CaseDirs -CasesDir $CasesDir) {
+        $identity = Get-CaseIdentity -CasesDir $CasesDir -CaseDir $d.FullName
         $tp = Join-Path $d.FullName 'truth.json'
-        if (Test-Path $tp) { $truth[$d.Name] = Get-Content $tp -Raw | ConvertFrom-Json }
+        $truth[$identity] = Get-Content $tp -Raw | ConvertFrom-Json
     }
     return $truth
 }

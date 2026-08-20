@@ -1,0 +1,1 @@
+{ "clean": true, "bugs": [], "note": "FP bait: `var total int` (zero value 0) rewritten as `total := 0`; identical initial value and identical behavior for every input." }
