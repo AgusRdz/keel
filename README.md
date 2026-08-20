@@ -30,7 +30,7 @@ Then reload if needed (`/reload-plugins`). Two skills become available:
 
 | Skill | What it does |
 |---|---|
-| `/review-calibration:calibrate <behavior>` | Turn an annoying behavior ("too verbose", "keeps refactoring", "flags style") into ONE executable, on-disk rule and add it to your `CLAUDE.md`. |
+| `/review-calibration:calibrate <behavior>` | Turn an annoying behavior ("too verbose", "keeps refactoring", "flags style") into ONE executable, on-disk rule and add it to your `CLAUDE.md`. Run it with **no argument** to pick from a menu of ready-made presets instead. |
 | `/review-calibration:review-eval` | Run / interpret the model-vs-model regression eval, and follow the per-release ship-vs-tune runbook. |
 
 ## The idea in three parts

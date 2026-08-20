@@ -5,8 +5,9 @@ description: >-
   to the right on-disk location so it holds across model releases and context resets. Use
   when Claude is too verbose, too eager, over-flags, won't stop, uses the wrong tone/format,
   or any "it keeps doing X" — or when the user says "calibrate", "/calibrate", "make a rule
-  for this", or "stop doing X". For the theory and the review eval, see the plugin's
-  CALIBRATION.md and RUNBOOK.md.
+  for this", or "stop doing X". Invoke with no behavior (or "menu"/"choose"/"select") to pick
+  from a catalog of ready-made calibration presets instead of describing one. For the theory
+  and the review eval, see the plugin's CALIBRATION.md and RUNBOOK.md.
 ---
 
 # Calibrate
@@ -17,8 +18,11 @@ they re-roll on every new model and give false confidence.
 
 ## Input
 
-`/calibrate <behavior>` — e.g. `/calibrate stop writing long preambles`.
-If no behavior is given, ask one question: "What does Claude do that you want to change?"
+Two modes:
+- **Free-text** — `/calibrate <behavior>` (e.g. `/calibrate stop writing long preambles`).
+  One behavior → one rule, via the Procedure below.
+- **Menu** — `/calibrate` with no behavior, or when the user says "menu", "choose", "select",
+  or "what can I calibrate". Present the preset catalog for selection (see **Menu mode**).
 
 ## Procedure
 
@@ -55,6 +59,26 @@ If no behavior is given, ask one question: "What does Claude do that you want to
      default — flag which it is).
    - For review rules, offer to verify the change with the eval:
      `cd "${CLAUDE_PLUGIN_ROOT}/harness"; ./run.ps1 -Models <id> -Passes 3; ./score.ps1`.
+
+## Menu mode
+
+For users who want to pick calibrations off a shelf rather than describe an annoyance.
+
+1. **Read the catalog** in `references/presets.md` (keys, categories, exact rule text).
+2. **Read the target's current `## Calibration`** first (default `~/.claude/CLAUDE.md`) so you
+   can dedupe and show net changes.
+3. **Present the presets for selection** using a single multi-select question — one option per
+   preset, label = the category + what it does, so the user checks the ones they want. Always
+   allow "type my own" (falls through to the free-text Procedure for that one).
+4. **For each selected preset:** apply the Procedure's steps 4–5 (conflict/dilution check, then
+   confirm). Dedupe against existing lines — if a rule already covers it, propose TIGHTENING,
+   not a duplicate. Batch the confirmation: show the full combined `## Calibration` diff once,
+   get one yes, then write all selected rules together.
+5. **Cap check:** if the resulting block exceeds ~8 lines, flag it and offer to prune the
+   weakest/stalest lines before writing. A tight block transfers better than an exhaustive one.
+6. **Close** with the same three facts as the Procedure (next-session, durability, verify).
+
+Menu mode still obeys every Rule below — executable-only, dedupe, CLAUDE.md not memory.
 
 ## Rules
 
