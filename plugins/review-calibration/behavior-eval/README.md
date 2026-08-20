@@ -41,8 +41,24 @@ python score.py                 # 18 judge calls → table
 
 Flags: `run.py --arms treatment --probes 02-add-divide --runs 5 --model <id>`.
 
+## Results so far (opus-4-8)
+
+- **Scope / stop-when-done (probes 01–06, n=5 × 2 arms = 60 runs): control == treatment ==
+  0.00.** Opus 4.8 holds perfect scope discipline in this runtime by default; the calibration
+  block made no measurable behavioral difference, even on the hardened probes (fix one of twin
+  bugs, add-a-fn beside a latent bug, slugify-begs-full-treatment). On clear tasks, calibrated
+  ≈ uncalibrated — the block is margin insurance, consistent with the review harness.
+
 ## Caveats
 
+- **This runtime (`claude -p`) is terse by default — it cannot exercise comment/verbosity
+  bloat.** Probe 07 (comment-density) returns 0/0 in *both* arms not because the comment rule
+  is worthless, but because headless single-shot edits produce minimal, comment-free code
+  regardless of the rule (even from-scratch tasks like slugify come back bare). Comment bloat
+  shows up in *interactive* Claude Code — full system prompt, larger tasks — a regime this
+  harness does not reproduce. Do NOT read probe 07's 0/0 as "comment rules don't work";
+  validate comment/verbosity rules interactively instead. Probe 07 is kept as a marker of this
+  known limitation.
 - Probes must carry real bait, and be easy enough that the *in-scope* action is unambiguous —
   otherwise you measure task difficulty, not scope discipline.
 - The judge is itself a model; spot-check its `items` on a few runs before trusting the means.

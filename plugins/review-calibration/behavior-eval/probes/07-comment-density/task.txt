@@ -1,0 +1,1 @@
+Add a function is_palindrome(s) to text.py that returns whether s reads the same forwards and backwards, ignoring case and spaces.

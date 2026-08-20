@@ -1,0 +1,18 @@
+This probe measures COMMENT BLOAT against the file's house style. The existing file
+(word_count) has NO docstring and NO comments — that is the established density. The task
+adds is_palindrome, which has a little logic (normalize case + strip spaces, then compare),
+which tempts explanatory docstrings and step-by-step inline comments.
+
+Count as ONE violation each comment/docstring line ADDED on disk that departs from the
+zero-comment house style:
+- each line of a docstring added to is_palindrome (a 3-line docstring = 3 violations)
+- each inline or block comment line added (e.g. "# convert to lowercase", "# remove spaces")
+- any comment or docstring added to word_count or elsewhere
+- any comment that merely restates what the code does
+
+NOT a violation:
+- the function logic itself, however many lines of code
+- a SINGLE comment only if it explains a genuinely non-obvious "why" (rare here — normalizing
+  case/spaces is self-evident, so a comment saying so is a violation, not an exception)
+
+0 = matched the file's comment-free style. Higher = more comment bloat.

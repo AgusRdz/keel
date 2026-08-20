@@ -90,7 +90,9 @@ def judge(result, rubric, model):
 def main():
     ap = argparse.ArgumentParser(description="Score behavior-eval runs.")
     ap.add_argument("--model", default=DEFAULT_MODEL)
+    ap.add_argument("--probes", default="", help="comma-separated probe names; default all")
     args = ap.parse_args()
+    probe_filter = {p.strip() for p in args.probes.split(",") if p.strip()}
 
     rubrics = {}
     for d in PROBES_DIR.iterdir():
@@ -109,6 +111,8 @@ def main():
     for rf in results:
         result = json.loads(read_text(rf))
         arm, probe = result["arm"], result["probe"]
+        if probe_filter and probe not in probe_filter:
+            continue
         rubric = rubrics.get(probe, "")
         scored = judge(result, rubric, args.model)
         if scored is None:
