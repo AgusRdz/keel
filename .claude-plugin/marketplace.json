@@ -1,5 +1,5 @@
 {
-  "name": "review-calibration-eval",
+  "name": "keel",
   "owner": {
     "name": "AgusRdz",
     "url": "https://github.com/AgusRdz"
@@ -16,8 +16,8 @@
         "url": "https://github.com/AgusRdz"
       },
       "license": "MIT",
-      "homepage": "https://github.com/AgusRdz/review-calibration-eval",
-      "repository": "https://github.com/AgusRdz/review-calibration-eval",
+      "homepage": "https://github.com/AgusRdz/keel",
+      "repository": "https://github.com/AgusRdz/keel",
       "keywords": ["code-review", "calibration", "eval", "model-migration", "prompt-engineering"],
       "category": "developer-tools"
     }

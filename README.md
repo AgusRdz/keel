@@ -21,8 +21,8 @@ LOOSE (no calibration)  recall  clean-FP/run
 ## Install
 
 ```
-/plugin marketplace add AgusRdz/review-calibration-eval
-/plugin install review-calibration@review-calibration-eval
+/plugin marketplace add AgusRdz/keel
+/plugin install review-calibration@keel
 ```
 
 Then reload if needed (`/reload-plugins`). Two skills become available:
