@@ -80,14 +80,22 @@ cd harness
 
 ---
 
-## Baselines (2026-08-19, 12-case corpus)
+## Baselines (2026-08-19, 20-case corpus: 12 buggy, 8 clean; TS/SQL/C#)
 
 | Mode | Model | recall | clean-FP/run |
 |---|---|---|---|
-| STRICT | claude-opus-4-8 | 100% | 0.3 |
-| STRICT | claude-opus-5 | 100% | 0.7 |
-| LOOSE | claude-opus-4-8 | 100% | 8.3 |
-| LOOSE | claude-opus-5 | 100% | 13.0 |
+| STRICT | claude-opus-4-8 | 100% | 0.0 |
+| STRICT | claude-opus-5 | 100% | 0.7* |
+| LOOSE | claude-opus-4-8 | 100% | 7.7 |
+| LOOSE | claude-opus-5 | 100% | 19.3 |
 
-Re-baseline when you materially grow the corpus. Exact multipliers are soft at n=12 —
-treat as "~an order of magnitude", not gospel.
+\* 5's entire strict FP is one ambiguous case (`12-clean-style-not-bug`), where flagging
+input-widening is a defensible judgment call, not sloppiness. Calibrated, the models are
+effectively tied.
+
+Read: calibrated, both models are near-perfect (0.0 / 0.7). Uncalibrated, 5 is ~2.5x
+noisier than 4.8 (19.3 vs 7.7). Calibration removes ~100% of 4.8's nitpicking and ~96% of
+5's — and specifically neutralizes 5's higher raw tendency. Recall stays 100% everywhere.
+
+Re-baseline when you materially grow the corpus. n=20 separates the models more cleanly
+than the earlier n=12 run; still treat exact multipliers as "~an order of magnitude".

@@ -6,16 +6,17 @@ instead of chasing or avoiding model versions.**
 New model ships -> review feels nitpicky/dumb -> team reverts. This repo says: don't
 chase the model. Write the reviewer's behavior down as executable, on-disk rules, then
 measure each release with a regression eval. Measured result: **calibration outweighs
-model choice by ~20x** (`docs/FINDINGS.md`).
+model choice by roughly an order of magnitude** (`docs/FINDINGS.md`).
 
 ```
-STRICT (calibrated)     recall  clean-FP/run
-  claude-opus-4-8         100%          0.3
-  claude-opus-5           100%          0.7
+STRICT (calibrated)     recall  clean-FP/run     (20-case corpus, TS/SQL/C#)
+  claude-opus-4-8         100%          0.0
+  claude-opus-5           100%          0.7*
 LOOSE (no calibration)  recall  clean-FP/run
-  claude-opus-4-8         100%          8.3
-  claude-opus-5           100%         13.0
+  claude-opus-4-8         100%          7.7
+  claude-opus-5           100%         19.3
 ```
+\* 5's only strict FP is one ambiguous case; calibrated, the models are effectively tied.
 
 ## Contents
 

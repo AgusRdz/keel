@@ -18,9 +18,10 @@ worse, team reverts.** This skill says don't chase the model — calibrate the
 reviewer, then measure. Empirically, calibration outweighs model choice by roughly
 an order of magnitude (see `docs/FINDINGS.md`).
 
-Core claims, all measured:
-- Calibration (a good review prompt) moves false positives ~20x more than the model version does.
-- "Nitpicky new model" is real but small, and calibration removes ~95% of it.
+Core claims, all measured (20-case corpus, `docs/FINDINGS.md`):
+- Calibration moves false positives ~10-25x more than the model version does.
+- "Nitpicky new model" is real (5 ~2.5x noisier than 4.8 uncalibrated) but calibration
+  removes ~96% of it — calibrated, the models are effectively tied.
 - Models rarely lose recall across versions — they get *noisier*, which reads as dumb.
 
 ## When to use
