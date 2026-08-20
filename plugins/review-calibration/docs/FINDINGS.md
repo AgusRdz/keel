@@ -1,9 +1,10 @@
 # Findings: calibration vs. model version
 
 - **2026-08-19:** initial study, 12-case C# corpus.
-- **2026-08-19 (re-baseline):** 20-case polyglot corpus (TS/SQL/C#). Numbers below are the
-  re-baseline; it separates the models more cleanly than the 12-case run and is the current
-  reference.
+- **2026-08-19 (re-baseline):** 20-case polyglot corpus (TS/SQL/C#). Separated the models
+  more cleanly than the 12-case run.
+- **2026-08-20 (re-baseline):** 32-case corpus, adds Python + Go (now TS/SQL/C#/Python/Go).
+  384 reviews, 0 failures. **Current reference** — see "Results (32-case corpus)" below.
 
 ## Question
 
@@ -38,6 +39,35 @@ LOOSE (no calibration)  recall  clean-FP/run
   Trim()+ToLower widens accepted input, a real behavior change IF a caller relied on exact
   match. Defensible judgment, not a nitpick. Calibrated, the models are effectively tied.
 ```
+
+## Results (32-case corpus) — 2026-08-20, current reference
+
+Corpus grown 20 -> 32: added Python (mutable-default-arg, broad-except, comprehension,
+f-string) and Go (loop-var capture, ignored err, walrus, early-return); TS extended to 7.
+32 cases (18 buggy, 14 clean traps) across 5 languages. Same method: `claude -p --model`,
+3 passes/model, STRICT (calibrated) vs LOOSE (null-calibration). 384 reviews, 0 failures.
+
+```
+STRICT (calibrated)     recall  clean-FP/run
+  claude-opus-4-8         100%          0.0
+  claude-opus-5           100%          0.0
+
+LOOSE (no calibration)  recall  clean-FP/run
+  claude-opus-4-8         100%          3.3
+  claude-opus-5           100%          4.7
+```
+
+- **Direction holds, cleaner than ever on STRICT.** Both models calibrate to a flat 0.0 FP
+  at 100% recall — 5's one debatable strict-FP from the 20-case run (case 12) is gone at this
+  scale. The core claim survives corpus growth into two new languages.
+- **5 is still the nitpickier model, uncalibrated** (loose 4.7 vs 4.8's 3.3) — same ordering
+  as every prior run. Calibration erases the gap.
+- **Magnitude dropped vs the 20-case run** (loose was 7.7 / 19.3). The added clean cases are
+  *easy* equivalences (f-string rewrite, template literal, destructure-rename) that even LOOSE
+  rarely flags, pulling the per-run average down. Read this as: the loose multiplier is
+  corpus-sensitive and soft; the *sign and ordering* (loose >> strict, 5 > 4.8) are the
+  durable result, not the exact number. Don't quote 3.3/4.7 as "less nitpicky than before" —
+  it's a different, gentler denominator.
 
 ## Conclusions
 
