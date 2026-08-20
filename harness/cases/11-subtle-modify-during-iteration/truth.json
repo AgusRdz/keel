@@ -1,0 +1,6 @@
+{
+  "clean": false,
+  "bugs": [
+    { "file": "after.cs", "line": 5, "type": "modify-during-iteration", "note": "removes from `sessions` while foreach-ing over `sessions`; throws InvalidOperationException at runtime once any element is removed. Defect spans the foreach (L3) and Remove (L7); labeled at L5." }
+  ]
+}

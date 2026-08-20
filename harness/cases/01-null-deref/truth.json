@@ -1,0 +1,6 @@
+{
+  "clean": false,
+  "bugs": [
+    { "file": "after.cs", "line": 4, "type": "null-deref", "note": "null guard removed; order may be null when Find misses, Lines dereferenced -> NullReferenceException" }
+  ]
+}

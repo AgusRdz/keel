@@ -1,0 +1,6 @@
+{
+  "clean": false,
+  "bugs": [
+    { "file": "after.cs", "line": 9, "type": "over-narrowed-catch", "note": "narrowing catch(Exception) to catch(IOException) breaks the best-effort contract: File.Delete throws UnauthorizedAccessException (readonly/ACL), DirectoryNotFoundException, PathTooLongException, ArgumentException -- none are IOException, so they now propagate and crash callers instead of returning false. CORRECTED from a mislabeled 'clean' case; both Opus models flagged it." }
+  ]
+}

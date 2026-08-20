@@ -1,0 +1,6 @@
+{
+  "clean": false,
+  "bugs": [
+    { "file": "after.cs", "line": 4, "type": "off-by-one", "note": "loop bound changed < to <=; when count == values.Length, values[count] throws IndexOutOfRangeException" }
+  ]
+}

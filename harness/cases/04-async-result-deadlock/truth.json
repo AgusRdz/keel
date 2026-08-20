@@ -1,0 +1,6 @@
+{
+  "clean": false,
+  "bugs": [
+    { "file": "after.cs", "line": 3, "type": "sync-over-async", "note": "blocking .Result on an async call; deadlocks under a synchronization context (ASP.NET request thread)" }
+  ]
+}

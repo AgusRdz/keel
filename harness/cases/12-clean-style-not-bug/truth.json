@@ -1,0 +1,5 @@
+{
+  "clean": true,
+  "bugs": [],
+  "note": "FP bait / severity inflation: null-safe (?.), culture-safe (ToLowerInvariant) normalized compare. Functionally correct. A nitpicker inflates 'prefer StringComparison.OrdinalIgnoreCase over ToLower' (a style/perf preference) into a reported defect."
+}

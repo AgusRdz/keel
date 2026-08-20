@@ -1,0 +1,6 @@
+{
+  "clean": false,
+  "bugs": [
+    { "file": "after.cs", "line": 3, "type": "missing-commit", "note": "tx.Commit() removed; using-scope disposes the transaction, silently rolling back debit/credit -> funds never move" }
+  ]
+}

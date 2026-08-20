@@ -1,0 +1,6 @@
+{
+  "clean": false,
+  "bugs": [
+    { "file": "after.cs", "line": 4, "type": "sql-injection", "note": "parameter replaced with string concatenation; email = \"' OR '1'='1\" returns all users / enables injection" }
+  ]
+}

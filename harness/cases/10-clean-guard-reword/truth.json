@@ -1,0 +1,5 @@
+{
+  "clean": true,
+  "bugs": [],
+  "note": "FP bait: null guard is preserved (== null -> is null) and body extracted to a local; behavior identical. Baits a skim-reader into 'guard removed' and a nitpicker into an 'is null vs == null' style flag."
+}
