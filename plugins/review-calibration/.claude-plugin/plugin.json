@@ -1,0 +1,14 @@
+{
+  "name": "review-calibration",
+  "displayName": "Review Calibration",
+  "description": "Calibrate agent/reviewer behavior with executable, on-disk rules and a model-vs-model regression eval. Ships /calibrate (turn a behavior complaint into a durable rule) and /review-eval (score any model on recall vs false-positive rate).",
+  "version": "0.1.0",
+  "author": {
+    "name": "AgusRdz",
+    "url": "https://github.com/AgusRdz"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/AgusRdz/review-calibration-eval",
+  "repository": "https://github.com/AgusRdz/review-calibration-eval",
+  "keywords": ["code-review", "calibration", "eval", "model-migration", "prompt-engineering"]
+}

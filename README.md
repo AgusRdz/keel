@@ -1,74 +1,85 @@
-# review-calibration-eval
+# Review Calibration
 
-Keep code-review quality stable across model releases by **calibrating the reviewer
-instead of chasing or avoiding model versions.**
+A Claude Code plugin for one recurring problem: **a new model ships, your reviews (or your
+agent) suddenly feel nitpicky / dumb / degraded, so the team reverts.** This plugin says
+don't chase the model — *calibrate* it, then *measure*.
 
-New model ships -> review feels nitpicky/dumb -> team reverts. This repo says: don't
-chase the model. Write the reviewer's behavior down as executable, on-disk rules, then
-measure each release with a regression eval. Measured result: **calibration outweighs
-model choice by roughly an order of magnitude** (`docs/FINDINGS.md`).
+Measured result across 240 reviews: **calibration outweighs model choice by roughly an
+order of magnitude.** Calibrated, Opus 4.8 and Opus 5 are effectively tied; uncalibrated,
+5 is ~2.5× noisier. Full study in [`docs/FINDINGS.md`](plugins/review-calibration/docs/FINDINGS.md).
 
 ```
-STRICT (calibrated)     recall  clean-FP/run     (20-case corpus, TS/SQL/C#)
+STRICT (calibrated)     recall  clean-FP/run     20-case corpus, TS/SQL/C#
   claude-opus-4-8         100%          0.0
   claude-opus-5           100%          0.7*
 LOOSE (no calibration)  recall  clean-FP/run
   claude-opus-4-8         100%          7.7
   claude-opus-5           100%         19.3
 ```
-\* 5's only strict FP is one ambiguous case; calibrated, the models are effectively tied.
+<sub>* 5's only strict FP is one genuinely ambiguous case; calibrated, the models are tied. Recall never drops — models get *noisier*, not weaker, which reads as "dumb".</sub>
 
-## Contents
+## Install
 
-| Path | What |
-|---|---|
-| `SKILL.md` | Claude Code skill entry (name, when-to-use, how-to-use) |
-| `CALIBRATION.md` | The Calibration block + how to write executable, durable lines |
-| `RUNBOOK.md` | Per-release verify/tune loop and the ship-vs-tune decision rule |
-| `harness/` | The eval: `reviewer.ps1`, `run.ps1`, `score.ps1` (+ `score.py`), `cases/`, `lib/` |
-| `tests/` | Deterministic scorer self-test (no model calls) |
-| `docs/FINDINGS.md` | The 2026-08-19 study behind the ~20x result |
-
-## Quick start
-
-Requires the `claude` CLI on PATH and PowerShell 7+ (`pwsh`). No Python needed (a `score.py`
-mirror is included for anyone who has real Python; this machine's `python` is a Store stub).
-
-```powershell
-# 1. run the eval on one or more models (strict = calibrated prompt)
-cd harness
-./run.ps1 -Models claude-opus-4-8,claude-opus-5 -Passes 3
-
-# 2. score it
-./score.ps1                 # strict table
-./score.ps1 -Mode both      # strict vs loose, side by side (needs a loose run too)
-
-# 3. run the scorer self-test (deterministic, no model calls)
-cd ..
-pwsh ./tests/test-score.ps1
+```
+/plugin marketplace add AgusRdz/review-calibration-eval
+/plugin install review-calibration@review-calibration-eval
 ```
 
-## How it works
+Then reload if needed (`/reload-plugins`). Two skills become available:
 
-`run.ps1` feeds each `cases/<name>/{before,after}.<ext>` diff to a model via `claude -p`
-and saves normalized JSON findings under `harness/results/<mode>/<model>/pass<N>/`.
-`score.ps1` matches findings against `cases/<name>/truth.json` (bug at file+line, or
-`clean:true`) and prints recall + false-positive rate per model. Reviews are
-non-deterministic, so run multiple passes and read rates, not single shots.
+| Skill | What it does |
+|---|---|
+| `/review-calibration:calibrate <behavior>` | Turn an annoying behavior ("too verbose", "keeps refactoring", "flags style") into ONE executable, on-disk rule and add it to your `CLAUDE.md`. |
+| `/review-calibration:review-eval` | Run / interpret the model-vs-model regression eval, and follow the per-release ship-vs-tune runbook. |
 
-Two prompt modes (`-PromptMode strict|loose`):
-- **strict** mirrors the Calibration contract (repro required, correctness/security/
-  data-loss floor) — the reviewer as you'd deploy it.
-- **loose** is a generic "comment on anything" prompt — the model on its defaults, to
-  measure how much calibration it needs.
+## The idea in three parts
+
+1. **Calibration block** — write the reviewer's/agent's behavior as *executable* rules
+   (a number, an if-X-then-Y, or an explicit don't — never an adjective) and keep them
+   **on disk** (`CLAUDE.md` / a skill). Executable rules transfer across model versions;
+   on-disk rules survive `/clear` and context compaction. See
+   [`CALIBRATION.md`](plugins/review-calibration/CALIBRATION.md).
+2. **Eval harness** — a regression test for the *reviewer*, not the code. Feed it diffs with
+   known ground truth; it scores any model on recall (bugs caught) vs. false-positive rate
+   (the "nitpicky" number). Turns "5 feels degraded" into a number.
+3. **Runbook** — on each model release, run the eval, read the STRICT column, ship if recall
+   holds and FP is near baseline; tune one rule if it drifted. See
+   [`RUNBOOK.md`](plugins/review-calibration/RUNBOOK.md).
+
+## Running the eval
+
+Requires the `claude` CLI on `PATH` and PowerShell 7+ (`pwsh`). No Python needed
+(a `score.py` mirror is included for anyone who has real Python).
+
+```powershell
+cd "${CLAUDE_PLUGIN_ROOT}/harness"      # or the plugin's install dir
+./run.ps1 -Models claude-opus-4-8,claude-opus-5 -Passes 3   # strict = calibrated prompt
+./run.ps1 -Models claude-opus-4-8,claude-opus-5 -Passes 3 -PromptMode loose
+./score.ps1 -Mode both                  # strict vs loose, side by side
+```
+
+Deterministic scorer self-test (no model calls): `pwsh ./tests/test-score.ps1`.
+
+## Repo layout
+
+```
+.claude-plugin/marketplace.json         # marketplace (lists the plugin)
+plugins/review-calibration/
+  .claude-plugin/plugin.json            # plugin manifest
+  skills/calibrate/SKILL.md             # /review-calibration:calibrate
+  skills/review-eval/SKILL.md           # /review-calibration:review-eval
+  CALIBRATION.md  RUNBOOK.md            # method + per-release loop
+  harness/  tests/  docs/               # eval, self-test, findings
+```
 
 ## Honest limits
 
-- Line-window matching (±3) is coarse — catches a 40% FP gap, not a 2% one.
-- Measures the reviewer ON THIS CORPUS (12 cases). Grow `cases/` toward the bugs you care
-  about; the corpus IS the eval.
-- `buggy-unmatched` can be a real bug you forgot to label, not a false positive — eyeball it.
+- The eval measures the reviewer **on its corpus** (20 cases). Grow `harness/cases/` toward
+  the bugs *you* care about — the corpus IS the eval.
+- Line-window matching (±3) is coarse — catches a 40% FP gap, not a 2%.
+- `LOOSE` is a deliberately extreme null-calibration prompt; real use sits between the two
+  columns. Quote "~an order of magnitude", not a point number.
 
-## Status
+## License
 
-Local repo. Not yet pushed to a remote.
+MIT — see [`LICENSE`](LICENSE).

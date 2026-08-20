@@ -1,5 +1,5 @@
 ---
-name: review-calibration
+name: review-eval
 description: >-
   Keep code-review (and general agent) quality stable across model releases by
   calibrating the reviewer instead of chasing or avoiding model versions. Use when
@@ -34,15 +34,15 @@ Core claims, all measured (20-case corpus, `docs/FINDINGS.md`):
 ## How to use
 
 ### 1. Calibrate (author once, tune rarely)
-Read `CALIBRATION.md`. Copy the Calibration block into the consumer's on-disk
+Read `${CLAUDE_PLUGIN_ROOT}/CALIBRATION.md`. Copy the Calibration block into the consumer's on-disk
 instructions (`CLAUDE.md`, a rule file, or a review skill) — NOT into chat, which
 compaction and `/clear` erase. Write every line executable (number / condition /
 stop-rule), never an adjective.
 
 ### 2. Verify on each release (the runbook)
-Follow `RUNBOOK.md`. In short:
+Follow `${CLAUDE_PLUGIN_ROOT}/RUNBOOK.md`. In short:
 ```powershell
-cd harness
+cd "${CLAUDE_PLUGIN_ROOT}/harness"
 ./run.ps1 -Models <new-model-id> -Passes 3      # strict prompt (calibrated)
 ./score.ps1
 ```
@@ -57,13 +57,13 @@ FP crept up => find the drifted clean case, tighten the one governing line, re-r
 The strict->loose delta shows how much a model nitpicks WITHOUT calibration — i.e.
 how much calibration it needs. Big loose FP + near-zero strict FP = "fine once calibrated."
 
-## Layout
+## Layout (all under the plugin root, `${CLAUDE_PLUGIN_ROOT}`)
 
 - `CALIBRATION.md` — the block + how to write executable, durable lines.
 - `RUNBOOK.md` — the per-release verify/tune loop and the ship-vs-tune decision rule.
 - `harness/` — the eval: `reviewer.ps1`, `run.ps1`, `score.ps1` (+ `score.py`), `cases/`, `lib/`.
 - `tests/test-score.ps1` — deterministic scorer self-test, no model calls.
-- `docs/FINDINGS.md` — the 2026-08-19 study that produced the ~20x result.
+- `docs/FINDINGS.md` — the study behind the ~order-of-magnitude result.
 
 ## Guardrails
 

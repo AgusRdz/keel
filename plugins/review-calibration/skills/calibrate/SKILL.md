@@ -5,8 +5,8 @@ description: >-
   to the right on-disk location so it holds across model releases and context resets. Use
   when Claude is too verbose, too eager, over-flags, won't stop, uses the wrong tone/format,
   or any "it keeps doing X" — or when the user says "calibrate", "/calibrate", "make a rule
-  for this", or "stop doing X". For the theory and the review eval, see
-  ~/dev/review-calibration-eval (CALIBRATION.md, RUNBOOK.md).
+  for this", or "stop doing X". For the theory and the review eval, see the plugin's
+  CALIBRATION.md and RUNBOOK.md.
 ---
 
 # Calibrate
@@ -39,7 +39,7 @@ If no behavior is given, ask one question: "What does Claude do that you want to
    - Everyday Claude behavior -> `~/.claude/CLAUDE.md`, `## Calibration` section.
    - Project-specific -> that project's `CLAUDE.md`.
    - Code-review behavior -> the review skill's prompt (and note it is measurable with the
-     `~/dev/review-calibration-eval` harness).
+     bundled harness at `${CLAUDE_PLUGIN_ROOT}/harness`).
 
 4. **Check for conflict / dilution.** Read the target's `## Calibration` section first.
    - If an existing line already covers it, propose TIGHTENING that line, not adding a new one.
@@ -54,7 +54,7 @@ If no behavior is given, ask one question: "What does Claude do that you want to
    - Durability: fully executable (transfers across models) vs semi-durable (leans against a
      default — flag which it is).
    - For review rules, offer to verify the change with the eval:
-     `cd ~/dev/review-calibration-eval/harness; ./run.ps1 -Models <id> -Passes 3; ./score.ps1`.
+     `cd "${CLAUDE_PLUGIN_ROOT}/harness"; ./run.ps1 -Models <id> -Passes 3; ./score.ps1`.
 
 ## Rules
 

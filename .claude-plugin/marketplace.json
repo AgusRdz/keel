@@ -1,0 +1,25 @@
+{
+  "name": "review-calibration-eval",
+  "owner": {
+    "name": "AgusRdz",
+    "url": "https://github.com/AgusRdz"
+  },
+  "description": "Keep code-review quality stable across model releases by calibrating the reviewer, with a regression eval to prove it.",
+  "plugins": [
+    {
+      "name": "review-calibration",
+      "source": "./plugins/review-calibration",
+      "description": "Calibrate agent/reviewer behavior with executable, on-disk rules and a model-vs-model regression eval. Ships /calibrate and /review-eval.",
+      "version": "0.1.0",
+      "author": {
+        "name": "AgusRdz",
+        "url": "https://github.com/AgusRdz"
+      },
+      "license": "MIT",
+      "homepage": "https://github.com/AgusRdz/review-calibration-eval",
+      "repository": "https://github.com/AgusRdz/review-calibration-eval",
+      "keywords": ["code-review", "calibration", "eval", "model-migration", "prompt-engineering"],
+      "category": "developer-tools"
+    }
+  ]
+}
