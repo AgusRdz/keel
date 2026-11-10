@@ -1,4 +1,4 @@
-# Review Calibration
+# keel — Review Calibration for Claude Code
 
 A Claude Code plugin for one recurring problem: **a new model ships, your reviews (or your
 agent) suddenly feel nitpicky / dumb / degraded, so the team reverts.** This plugin says
